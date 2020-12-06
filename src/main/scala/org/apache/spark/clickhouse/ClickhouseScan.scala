@@ -24,7 +24,6 @@ case class ClickhouseScan(
   )
 
   override def planInputPartitions(): Array[InputPartition] = {
-
     Utils.columnPartition(readSchema, "", options)
   }
 
@@ -32,5 +31,6 @@ case class ClickhouseScan(
     ClickhousePartitionReaderFactory(sparkSession.sessionState.conf, readSchema, clickhouseConfig)
   }
 
+  override def toBatch: Batch = this
 //  override def estimateStatistics(): Statistics = ???
 }

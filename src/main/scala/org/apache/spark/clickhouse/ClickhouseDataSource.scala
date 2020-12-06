@@ -31,6 +31,8 @@ class ClickhouseDataSource extends DataSourceRegister with TableProvider {
 
     ClickhouseTable(shortName(), sparkSession, new CaseInsensitiveStringMap(properties), schema)
   }
+
+  override def supportsExternalMetadata(): Boolean = true
 }
 
 

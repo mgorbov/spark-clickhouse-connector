@@ -20,7 +20,7 @@ case class ClickhousePartitionReaderFactory(
     val clickhousePartition = partition.asInstanceOf[ClickhouseInputPartition]
 
     val url = clickhouseConfig.urls(clickhousePartition.idx % clickhouseConfig.urls.size)
-    val rs = Utils.executeQuery(url, clickhouseConfig.query)
+    val rs = Utils.executeQuery(url, clickhouseConfig.query, clickhouseConfig)
 
     val rowsIterator = JdbcUtils.resultSetToSparkInternalRows(rs, schema, TaskContext.get().taskMetrics().inputMetrics)
 

@@ -20,23 +20,24 @@ import scala.collection.mutable.ArrayBuffer
 object Utils extends Logging {
 
   def executeQuery(url: String, query: String, clickhouseConfig: ClickhouseConfig): ResultSet = {
-    val props = new Properties()
-    props.setProperty(ClickHouseQueryParam.DATABASE.getKey, clickhouseConfig.db)
-    props.setProperty(ClickHouseQueryParam.USER.getKey, clickhouseConfig.user)
-    props.setProperty(ClickHouseQueryParam.PASSWORD.getKey, clickhouseConfig.password)
+    val chProps = new ClickHouseProperties()
+    chProps.setDatabase(clickhouseConfig.db)
+    chProps.setUser(clickhouseConfig.user)
+    chProps.setPassword(clickhouseConfig.password)
+    chProps.setDataTransferTimeout(clickhouseConfig.timeout)
+    chProps.setSocketTimeout(clickhouseConfig.timeout)
 
-    val clickHouseProps = new ClickHouseProperties()
     logInfo(s"JDBC Connection string: \n$url")
-    val dataSource = new JdbcDataSource(url, clickHouseProps)
+    val dataSource = new JdbcDataSource(url, chProps)
     val conn = dataSource.getConnection
 
     conn.createStatement().executeQuery(query)
   }
 
   def columnPartition(
-                       schema: StructType,
-                       timeZoneId: String,
-                       options: CaseInsensitiveStringMap): Array[InputPartition] = {
+      schema: StructType,
+      timeZoneId: String,
+      options: CaseInsensitiveStringMap): Array[InputPartition] = {
 
     val partitioning = {
       import JDBCOptions._
@@ -117,7 +118,7 @@ object Utils extends Logging {
     }
     val partitions = ans.toArray
     logInfo(s"Number of partitions: $numPartitions, WHERE clauses of these partitions: " +
-      partitions.map(_.asInstanceOf[JDBCPartition].whereClause).mkString(", "))
+      partitions.map(_.asInstanceOf[ClickhouseInputPartition].whereClause).mkString(", "))
     partitions
   }
 
